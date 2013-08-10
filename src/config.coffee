@@ -11,7 +11,7 @@ startApp = ->
   root.wWidth = window.innerWidth
   root.wHeight = window.innerHeight
   initWindow()
-  (new Application).main()
+  (Application.getInstance(new Starmap)).main()
 
 initWindow = ->
   $("html").css({ width: "100%", height: "100%", padding: "0", margin: "0", overflow: "hidden" })

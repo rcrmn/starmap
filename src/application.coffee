@@ -1,54 +1,68 @@
 
-class root.Application
+class Application
+  
+  instance = null
 
-  scene = null
-  camera = null
-  renderer = null
+  @getInstance: (updater) ->
+    instance ?= new ProtectedApplication(updater)
 
-  cube = null
+class ProtectedApplication
+  scene: null
+  camera: null
+  renderer: null
+
+  sceneUpdater: null
+
+  constructor: (updater) ->
+    this.sceneUpdater = updater
+
   main: ->
-    initGL()
+    this.initGL()
 
-    initScene()
+    this.initScene()
+   
+    this.updateGL()
     
-    updateGL()
-    
-  initGL = ->
+  initGL: ->
     scene = new THREE.Scene()
+    this.scene = scene
+
     camera = new THREE.PerspectiveCamera( CAMERA_FOV, wWidth / wHeight, 0.1, 1000 )
+    this.camera = camera
 
     renderer = new THREE.WebGLRenderer()
     renderer.setSize(wWidth, wHeight)
     renderer.setClearColor( new THREE.Color(0x000000, 1 ) )
 
     document.body.appendChild(renderer.domElement)
+    this.renderer = renderer
 
-    window.onresize = windowResized
-
-
-  updateGL = ->
-    requestAnimationFrame(updateGL)
-    cube.rotation.x += 0.01
-    cube.rotation.y += 0.01
-    drawGL()
+    window.onresize = this.windowResized
 
 
-  drawGL = ->
-    renderer.render(scene, camera)
+  initScene: ->
+    this.sceneUpdater.initScene(this.scene)
+    this.camera.position.z = 5
 
-
-  initScene = ->
-    geometry = new THREE.CubeGeometry(1,1,1)
-    material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
-    cube = new THREE.Mesh( geometry, material )
-    scene.add cube
-    camera.position.z = 5
-
-  windowResized = ->
+  windowResized: =>
+    camera = this.camera
+    renderer = this.renderer
     wWidth = window.innerWidth
     wHeight = window.innerHeight
     camera.aspect = wWidth / wHeight
     renderer.setSize(wWidth, wHeight)
     camera.updateProjectionMatrix()
 
+
+  updateGL: =>
+    this.sceneUpdater.updateScene(this.scene)
+
+    requestAnimationFrame(this.updateGL)
+    this.drawGL()
+
+
+  drawGL: ->
+    this.renderer.render(this.scene, this.camera)
+
+root.Application = Application
 
