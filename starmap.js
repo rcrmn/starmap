@@ -1,2 +1,2 @@
-//= stub three.min.js
-//= require_tree .
+//= require src/config
+//= require_tree ./src
