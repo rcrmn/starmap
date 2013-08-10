@@ -11,37 +11,42 @@ require 'sprockets'
  
 # Application:::::::::::::::::::::::::::::::::::::::::::::::::::
 
-class SassHandler < Sinatra::Base
+class Assets < Sinatra::Base
+  # Adapted from http://mutelight.org/asset-pipeline
+  configure do
+    set :assets, (Sprockets::Environment.new { |env|
+      env.append_path(settings.root + "/")
 
-  set :views, File.dirname(__FILE__) + '/'
-  
-  get '/*.css' do
-    filename = params[:splat].first
-    sass filename.to_sym
-  end
+      # Compress everything in production
+      if ENV["RACK_ENV"] == "production"
+        env.js_compressor  = YUI::JavaScriptCompressor.new
+        env.css_compressor = YUI::CssCompressor.new
+      end
+    })
     
-end
- 
-class CoffeeHandler < Sinatra::Base
-
-  set :views, File.dirname(__FILE__) + '/'
-  
-  get "/*.js" do
-
-    if File.exists?(File.join(settings.views, params[:splat].first + ".js"))
-      send_file File.join(settings.views, params[:splat].first + ".js")
-    else
-      filename = params[:splat].first
-      coffee filename.to_sym
-    end
-
   end
 
+  get "/*.js" do
+    content_type("application/javascript")
+    settings.assets["#{params[:splat].first}.js"]
+  end
+
+  get "/*.css" do
+    content_type("text/css")
+    settings.assets["#{params[:splat].first}.css"]
+  end
+
+  %w{jpg png}.each do |format|
+    get "/*.#{format}" do |image|
+      content_type("image/#{format}")
+      settings.assets["#{params[:splat].first}.#{format}"]
+    end
+  end
+  
 end
+
  
 class App < Sinatra::Base
-  use SassHandler
-  use CoffeeHandler
   
   # Configuration:::::::::::::::::::::::::::::::::::::::::::::::
   set :public_dir, File.dirname(__FILE__) + '/'
