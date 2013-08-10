@@ -7,6 +7,7 @@ gem 'sinatra'
 
 gem 'sprockets'
 gem 'yui-compressor'
+gem 'uglifier'
 
 gem 'slim'
 gem 'sass'
