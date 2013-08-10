@@ -4,9 +4,9 @@ class Application
   instance = null
 
   @getInstance: (updater) ->
-    instance ?= new ProtectedApplication(updater)
+    instance ?= new Application_(updater)
 
-class ProtectedApplication
+class Application_
   scene: null
   camera: null
   renderer: null
@@ -41,7 +41,7 @@ class ProtectedApplication
 
 
   initScene: ->
-    this.sceneUpdater.initScene(this.scene)
+    this.sceneUpdater.initScene()
     this.camera.position.z = 5
 
   windowResized: =>
@@ -55,7 +55,7 @@ class ProtectedApplication
 
 
   updateGL: =>
-    this.sceneUpdater.updateScene(this.scene)
+    this.sceneUpdater.updateScene()
 
     requestAnimationFrame(this.updateGL)
     this.drawGL()
